@@ -53,6 +53,10 @@ FROM golang:1.13 as go3rdparty
 ## ToDo: to use go mod, set https://blog.golang.org/using-go-modules
 RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
 
+# Finalize the image
+FROM golang:1.13
+MAINTAINER "Godev team"
+
 COPY --from=vscode /usr/local/share/code-server /usr/local/share/code-server
 COPY --from=vscode /usr/local/bin/code-server /usr/local/bin/code-server
 COPY --from=gobin /go/bin /go/bin
