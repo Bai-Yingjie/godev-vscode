@@ -1,0 +1,14 @@
+{
+	"workbench.colorTheme": "Monokai",
+	"editor.mouseWheelZoom": true,
+	"editor.fontSize": 18,
+	"editor.formatOnType": true,
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+	"editor.wordWrapColumn": 120,
+	"terminal.integrated.copyOnSelection": true,
+	"terminal.integrated.fontSize": 16,
+	"workbench.iconTheme": "vscode-icons",
+	"vsicons.dontShowNewVersionMessage": true,
+	"gitlens.currentLine.enabled": false
+}
