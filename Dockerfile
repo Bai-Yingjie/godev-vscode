@@ -1,5 +1,5 @@
 # Install extensions for vscode-server
-FROM code-server:v2 as vscode
+FROM codercom/code-server:v2 as vscode
 
 USER root
 WORKDIR /
