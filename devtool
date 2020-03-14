@@ -1,0 +1,180 @@
+#!/bin/sh
+
+#Exit immediately if a command exits with a non-zero status.
+#set -e
+
+godev-tool-image="godev/godev-tools"
+
+usage(){
+    cat <<EOF
+$(basename $0) starts godev-tools docker image which has a built-in vscode server and Gc go toolchain.
+The image also includes ALL 3rd party go packages that our projects need.
+
+Usage: $(basename $0) [OPTIONS] COMMAND
+OPTIONS:
+    #if no --name provided, a default name will be used
+    --name      instance_name
+
+COMMANDS:
+    #start a instance running vscode, map host /repo/\$USER to docker instance /repo/\$USER
+    vscode <start|stop|restart> [Options]
+    Options:
+        --config        path/to/your/settings.json
+        --port          port
+        --password      vscode_password
+
+    #login to the bash of the running instance
+    #use --name if you want to login non-defualt instance
+    login
+
+    #start a one time instance to exec command.
+    #map host \$PWD to the docker instance /app
+    exec <shell command para...>
+EOF
+}
+
+parse_arg(){
+    user=$(whoami)
+    instance_name=${user}_devtool_vscode
+
+    vscode_config=$(pwd)/vscodesettings.json
+    vscode_port=$(($(id -u $user) + 60000))
+    vscode_password=${user}go
+
+    while test $# != 0; do
+        case $1 in
+            --name)
+                shift
+                instance_name=$1
+                shift
+                ;;
+            *)
+                break
+        esac
+    done
+
+    COMMAND=$1
+    shift
+
+    case $COMMAND in
+        vscode)
+            vscode_cmd=$1
+            shift
+            while test $# != 0; do
+                arg=$1
+                shift
+                case $arg in
+                    --config)
+                        vscode_config=$1
+                        shift
+                        ;;
+                    --port)
+                        vscode_port=$1
+                        shift
+                        ;;
+                    --password)
+                        vscode_password=$1
+                        shift
+                        ;;
+                    *)
+                        usage
+                        exit 1
+                esac
+            done
+            ;;
+        login)
+            ;;
+        exec)
+            shell_command=$*
+            ;;
+        *)
+            usage
+            exit 1
+    esac
+}
+
+instance_is_running(){
+    local id=$1
+    docker inspect -f '{{.State.Running}}' $id > /dev/null 2>&1
+}
+
+start_vscode(){
+    if instance_is_running $instance_name; then
+        echo $instance_name is running
+        return
+    fi
+    echo starting $instance_name for $user
+    docker  run -d --rm                         \
+            --name $instance_name               \
+            --user $(id -u):$(id -g)            \
+            -v /etc/passwd:/etc/passwd:ro       \
+            -v /etc/group:/etc/group:ro         \
+            -v /home/$user:/home/$user          \
+            -v /repo/$user:/repo/$user          \
+            -w /repo/$user                      \
+            -p $vscode_port:8080                \
+            -e PASSWORD=$vscode_password        \
+            -v $vscode_config:/usr/local/share/code-server/User/settings.json \
+            $godev-tool-image
+
+    echo vscode using config: $vscode_config
+    echo vscode using port: $vscode_port
+    echo vscode using password: $vscode_password
+}
+
+stop_vscode(){
+    if instance_is_running $instance_name; then
+        docker stop $instance_name
+    fi
+    echo $instance_name stopped
+}
+
+login_instance(){
+    if ! instance_is_running $instance_name; then
+        echo $instance_name not running, start it before login
+        return
+    fi
+    echo login to $instance_name
+    docker exec -it $instance_name bash
+}
+
+exec_shell_command(){
+    docker  run --rm                            \
+            --user $(id -u):$(id -g)            \
+            -v /etc/passwd:/etc/passwd:ro       \
+            -v /etc/group:/etc/group:ro         \
+            -v /home/$user:/home/$user          \
+            -v $(pwd):/app                      \
+            -w /app                             \
+            $godev-tool-image                   \
+            $shell_command
+}
+
+main(){
+    case $COMMAND in
+        vscode)
+            case $vscode_cmd in
+                start)
+                    start_vscode
+                    ;;
+                stop)
+                    stop_vscode
+                    ;;
+                restart)
+                    stop_vscode
+                    sleep 1
+                    start_vscode
+                    ;;
+            esac
+            ;;
+        login)
+            login_instance
+            ;;
+        exec)
+            exec_shell_command
+            ;;
+    esac
+}
+
+parse_arg $*
+main
