@@ -3,7 +3,7 @@
 #Exit immediately if a command exits with a non-zero status.
 #set -e
 
-godev-tool-image="godev/godev-tools"
+godev_tool_image="dockerhub.azk8s.cn/yingjieb/godev-vscode"
 
 usage(){
     cat <<EOF
@@ -115,7 +115,7 @@ start_vscode(){
             -p $vscode_port:8080                \
             -e PASSWORD=$vscode_password        \
             -v $vscode_config:/usr/local/share/code-server/User/settings.json \
-            $godev-tool-image
+            $godev_tool_image
 
     echo vscode using config: $vscode_config
     echo vscode using port: $vscode_port
@@ -146,7 +146,7 @@ exec_shell_command(){
             -v /home/$user:/home/$user          \
             -v $(pwd):/app                      \
             -w /app                             \
-            $godev-tool-image                   \
+            $godev_tool_image                   \
             $shell_command
 }
 
