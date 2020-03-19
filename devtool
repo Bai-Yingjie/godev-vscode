@@ -145,6 +145,7 @@ exec_shell_command(){
             -v /etc/group:/etc/group:ro         \
             -v /home/$user:/home/$user          \
             -v $(pwd):/app                      \
+            -e GOPATH="/go:/app"                \
             -w /app                             \
             $godev_tool_image                   \
             $shell_command
@@ -165,6 +166,9 @@ main(){
                     sleep 1
                     start_vscode
                     ;;
+                *)
+                    usage
+                    exit 1
             esac
             ;;
         login)
@@ -173,6 +177,9 @@ main(){
         exec)
             exec_shell_command
             ;;
+        *)
+            usage
+            exit 1
     esac
 }
 

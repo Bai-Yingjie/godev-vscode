@@ -10,5 +10,10 @@
 	"terminal.integrated.fontSize": 16,
 	"workbench.iconTheme": "vscode-icons",
 	"vsicons.dontShowNewVersionMessage": true,
-	"gitlens.currentLine.enabled": false
+	"gitlens.currentLine.enabled": false,
+	"terminal.integrated.shell.linux": "/bin/bash",
+	"go.inferGopath": true,
+	"files.exclude": {
+		"**/.vim*": true
+	}
 }
