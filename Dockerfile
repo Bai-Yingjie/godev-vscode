@@ -19,7 +19,7 @@ RUN code-server \
 	--install-extension esbenp.prettier-vscode
 
 ## let any user have the access
-RUN chmod -R a+rwX /usr/local/share/code-server
+RUN chmod -R a+rwx /usr/local/share/code-server
 
 # Build tools for code-server to /go/bin
 FROM golang:1.13 as gobin
@@ -56,6 +56,10 @@ RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
 # Finalize the image
 FROM golang:1.13
 MAINTAINER "Godev team"
+
+RUN apt -y update
+#go pprof needs this
+RUN apt -y install graphviz
 
 COPY --from=vscode /usr/local/share/code-server /usr/local/share/code-server
 COPY --from=vscode /usr/local/bin/code-server /usr/local/bin/code-server

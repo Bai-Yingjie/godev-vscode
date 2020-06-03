@@ -20,8 +20,8 @@ COMMANDS:
     vscode <start|stop|restart> [Options]
     Options:
         --config        path/to/your/settings.json
-        --port          port
-        --password      vscode_password
+        --port          vscode port
+        --password      vscode password
 
     #login to the bash of the running instance
     #use --name if you want to login non-defualt instance
@@ -31,6 +31,8 @@ COMMANDS:
     #map host \$PWD to the docker instance /app
     exec <shell command para...>
 EOF
+
+    exit 1
 }
 
 parse_arg(){
@@ -39,14 +41,16 @@ parse_arg(){
 
     vscode_config=$(pwd)/vscodesettings.json
     vscode_port=$(($(id -u $user) + 60000))
+    #can be used to map inside pprof http port to outside
+    reserve_port=$((80 + 60000))
     vscode_password=${user}go
 
     while test $# != 0; do
         case $1 in
             --name)
-                shift
-                instance_name=$1
-                shift
+                instance_name=$2
+                test -z "$instance_name" && usage
+                shift 2
                 ;;
             *)
                 break
@@ -54,6 +58,7 @@ parse_arg(){
     done
 
     COMMAND=$1
+    test -z "$COMMAND" && usage
     shift
 
     case $COMMAND in
@@ -78,7 +83,6 @@ parse_arg(){
                         ;;
                     *)
                         usage
-                        exit 1
                 esac
             done
             ;;
@@ -89,7 +93,6 @@ parse_arg(){
             ;;
         *)
             usage
-            exit 1
     esac
 }
 
@@ -104,6 +107,11 @@ start_vscode(){
         return
     fi
     echo starting $instance_name for $user
+    echo vscode using config: $vscode_config
+    echo vscode using port: $vscode_port
+    echo vscode using password: $vscode_password
+    echo port $reserve_port reserved to map 8000 to outside
+
     docker  run -d --rm                         \
             --name $instance_name               \
             --user $(id -u):$(id -g)            \
@@ -113,13 +121,10 @@ start_vscode(){
             -v /repo/$user:/repo/$user          \
             -w /repo/$user                      \
             -p $vscode_port:8080                \
+            -p $reserve_port:8000               \
             -e PASSWORD=$vscode_password        \
             -v $vscode_config:/usr/local/share/code-server/User/settings.json \
             $godev_tool_image
-
-    echo vscode using config: $vscode_config
-    echo vscode using port: $vscode_port
-    echo vscode using password: $vscode_password
 }
 
 stop_vscode(){
@@ -168,7 +173,6 @@ main(){
                     ;;
                 *)
                     usage
-                    exit 1
             esac
             ;;
         login)
@@ -179,7 +183,6 @@ main(){
             ;;
         *)
             usage
-            exit 1
     esac
 }
 
