@@ -7,7 +7,7 @@ ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/us
 USER root
 RUN apt -y update
 #go pprof needs this
-RUN apt -y install graphviz
+RUN apt -y install graphviz gcc
 
 WORKDIR /
 RUN curl -o go.tar.gz https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
@@ -55,7 +55,7 @@ RUN go get -v github.com/go-delve/delve/cmd/dlv
 RUN go get -v github.com/davidrjenni/reftools/cmd/fillstruct
 RUN go get -v github.com/godoctor/godoctor
 #gopls for future use
-#RUN go get -u -v golang.org/x/tools/gopls
+RUN go get -v golang.org/x/tools/gopls
 
 # Prepare 3rd party dependency
 ## ToDo: to use go mod, see https://blog.golang.org/using-go-modules
