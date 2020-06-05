@@ -1,8 +1,18 @@
-# Install extensions for vscode-server
-FROM codercom/code-server:v2 as vscode
+FROM codercom/code-server:latest
+
+ENV GOLANG_VERSION=1.13.12
+ENV GOPATH "/go"
+ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+RUN apt -y update
+#go pprof needs this
+RUN apt -y install graphviz
 
 USER root
 WORKDIR /
+RUN curl -o go.tar.gz https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
+RUN tar -C /usr/local -xf go.tar.gz && rm -f go.tar.gz
+RUN mkdir -p $GOPATH/src $GOPATH/bin && chmod -R 777 $GOPATH
 RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
 	--user-data-dir /usr/local/share/code-server \
@@ -16,13 +26,12 @@ RUN code-server \
 	--install-extension windmilleng.vscode-go-autotest \
 	--install-extension defaltd.go-coverage-viewer \
 	--install-extension vscode-icons-team.vscode-icons \
-	--install-extension esbenp.prettier-vscode
+	--install-extension esbenp.prettier-vscode \
+	--install-extension streetsidesoftware.code-spell-checker
 
 ## let any user have the access
 RUN chmod -R a+rwx /usr/local/share/code-server
 
-# Build tools for code-server to /go/bin
-FROM golang:1.13 as gobin
 ## see https://github.com/microsoft/vscode-go/blob/master/src/goTools.ts
 RUN go get -u -v github.com/stamblerre/gocode && ln -sf $GOPATH/bin/gocode $GOPATH/bin/gocode-gomod
 RUN go get -u -v github.com/uudashr/gopkgs/cmd/gopkgs
@@ -49,26 +58,11 @@ RUN go get -u -v github.com/godoctor/godoctor
 #RUN go get -u -v golang.org/x/tools/gopls
 
 # Prepare 3rd party dependency
-FROM golang:1.13 as go3rdparty
-## ToDo: to use go mod, set https://blog.golang.org/using-go-modules
+## ToDo: to use go mod, see https://blog.golang.org/using-go-modules
 RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
-
-# Finalize the image
-FROM golang:1.13
-MAINTAINER "Godev team"
-
-RUN apt -y update
-#go pprof needs this
-RUN apt -y install graphviz
-
-COPY --from=vscode /usr/local/share/code-server /usr/local/share/code-server
-COPY --from=vscode /usr/local/bin/code-server /usr/local/bin/code-server
-COPY --from=gobin /go/bin /go/bin
-COPY --from=go3rdparty /go/src /go/src
 
 WORKDIR /go
 
 EXPOSE 8080
 
-CMD code-server --user-data-dir /usr/local/share/code-server --auth password
-
+CMD dumb-init fixuid -q /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password
