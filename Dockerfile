@@ -49,7 +49,7 @@ RUN go get -v golang.org/x/tools/cmd/goimports
 RUN go get -v github.com/sqs/goreturns
 RUN go get -v golang.org/x/lint/golint
 RUN go get -v github.com/cweill/gotests
-GO111MODULE=on RUN go get -v github.com/golangci/golangci-lint/cmd/golangci-lint
+RUN GO111MODULE=on go get -v github.com/golangci/golangci-lint/cmd/golangci-lint
 RUN go get -v github.com/mgechev/revive
 RUN go get -v github.com/go-delve/delve/cmd/dlv
 RUN go get -v github.com/davidrjenni/reftools/cmd/fillstruct
