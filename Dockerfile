@@ -4,11 +4,11 @@ ENV GOLANG_VERSION=1.13.12
 ENV GOPATH "/go"
 ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
+USER root
 RUN apt -y update
 #go pprof needs this
 RUN apt -y install graphviz
 
-USER root
 WORKDIR /
 RUN curl -o go.tar.gz https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
 RUN tar -C /usr/local -xf go.tar.gz && rm -f go.tar.gz
