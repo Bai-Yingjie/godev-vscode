@@ -1,13 +1,11 @@
-FROM codercom/code-server:latest
+FROM codercom/code-server:latest as builder
 
 ENV GOLANG_VERSION=1.13.12
 ENV GOPATH "/go"
 ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 USER root
-RUN apt -y update
-#go pprof needs this
-RUN apt -y install graphviz gcc
+RUN apt -y update && apt -y install gcc
 
 WORKDIR /
 RUN curl -o go.tar.gz https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
@@ -61,8 +59,27 @@ RUN go get -v golang.org/x/tools/gopls
 ## ToDo: to use go mod, see https://blog.golang.org/using-go-modules
 RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
 
+
+# Finalize the image
+FROM codercom/code-server:latest
+
+ENV GOPATH "/go"
+ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+USER root
+#go pprof needs this
+RUN apt -y update && apt -y install graphviz
+
+COPY --from=builder /usr/local/share/code-server /usr/local/share/code-server
+COPY --from=builder /usr/local/go /usr/local/go
+COPY --from:builder /go /go
+
 WORKDIR /go
 
 EXPOSE 8080
 
-CMD dumb-init fixuid -q /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password
+# empty the ENTRYPOINT
+ENTRYPOINT []
+
+CMD ["dumb-init", "fixuid", "-q", "/usr/bin/code-server", "--user-data-dir", "/usr/local/share/code-server", "--auth password"]
+
