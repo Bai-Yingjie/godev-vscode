@@ -72,7 +72,7 @@ RUN apt -y update && apt -y install graphviz
 
 COPY --from=builder /usr/local/share/code-server /usr/local/share/code-server
 COPY --from=builder /usr/local/go /usr/local/go
-COPY --from:builder /go /go
+COPY --from=builder /go /go
 
 WORKDIR /go
 
