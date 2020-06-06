@@ -40,6 +40,7 @@ parse_arg(){
     instance_name=${user}_devtool_vscode
 
     vscode_config=$(pwd)/vscodesettings.json
+    key_bind=$(pwd)/keybindings.json
     vscode_port=$(($(id -u $user) + 60000))
     #can be used to map inside pprof http port to outside
     reserve_port=$(($(id -u $user) + 80 + 60000))
@@ -71,6 +72,10 @@ parse_arg(){
                 case $arg in
                     --config)
                         vscode_config=$1
+                        shift
+                        ;;
+                    --keybind)
+                        key_bind=$1
                         shift
                         ;;
                     --port)
@@ -108,10 +113,12 @@ start_vscode(){
     fi
     echo starting $instance_name for $user
     echo vscode using config: $vscode_config
+    echo vscode using keybindings: $key_bind
     echo vscode using port: $vscode_port
     echo vscode using password: $vscode_password
     echo port $reserve_port reserved to map 8000 to outside
 
+    mkdir -p /repo/$user/go
     docker  run -d --rm                         \
             --name $instance_name               \
             --user $(id -u):$(id -g)            \
@@ -119,11 +126,13 @@ start_vscode(){
             -v /etc/group:/etc/group:ro         \
             -v /home/$user:/home/$user          \
             -v /repo/$user:/repo/$user          \
-            -w /home/$user                      \
+            -w /repo/$user                      \
             -p $vscode_port:8080                \
             -p $reserve_port:8000               \
             -e PASSWORD=$vscode_password        \
+            -e GOPATH=/repo/$user/go:/go        \
             -v $vscode_config:/usr/local/share/code-server/User/settings.json \
+            -v $key_bind:/usr/local/share/code-server/User/keybindings.json \
             $godev_tool_image
 }
 

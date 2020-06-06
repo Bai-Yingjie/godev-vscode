@@ -10,7 +10,7 @@ RUN apt -y update && apt -y install gcc
 WORKDIR /
 RUN curl -o go.tar.gz -L https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
 RUN tar -C /usr/local -xf go.tar.gz && rm -f go.tar.gz
-RUN mkdir -p $GOPATH/src $GOPATH/bin && chmod -R 777 $GOPATH
+RUN mkdir -p $GOPATH/src $GOPATH/bin $GOPATH/pkg && chmod -R 777 $GOPATH
 RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
 	--user-data-dir /usr/local/share/code-server \
@@ -75,6 +75,7 @@ RUN apt -y update && apt -y install graphviz
 COPY --from=builder /usr/local/share/code-server /usr/local/share/code-server
 COPY --from=builder /usr/local/go /usr/local/go
 COPY --from=builder /go /go
+#RUN chmod -R 777 $GOPATH
 
 WORKDIR /go
 

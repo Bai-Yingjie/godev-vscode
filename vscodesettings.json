@@ -15,5 +15,6 @@
 	"go.inferGopath": true,
 	"files.exclude": {
 		"**/.vim*": true
-	}
+	},
+	"cSpell.allowCompoundWords": true
 }
