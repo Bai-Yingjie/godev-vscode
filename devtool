@@ -3,7 +3,7 @@
 #Exit immediately if a command exits with a non-zero status.
 #set -e
 
-godev_tool_image="dockerhub.azk8s.cn/yingjieb/godev-vscode"
+godev_tool_image="yingjieb/godev-vscode"
 
 usage(){
     cat <<EOF
@@ -42,7 +42,7 @@ parse_arg(){
     vscode_config=$(pwd)/vscodesettings.json
     vscode_port=$(($(id -u $user) + 60000))
     #can be used to map inside pprof http port to outside
-    reserve_port=$((80 + 60000))
+    reserve_port=$(($(id -u $user) + 80 + 60000))
     vscode_password=${user}go
 
     while test $# != 0; do
@@ -119,7 +119,7 @@ start_vscode(){
             -v /etc/group:/etc/group:ro         \
             -v /home/$user:/home/$user          \
             -v /repo/$user:/repo/$user          \
-            -w /repo/$user                      \
+            -w /home/$user                      \
             -p $vscode_port:8080                \
             -p $reserve_port:8000               \
             -e PASSWORD=$vscode_password        \
