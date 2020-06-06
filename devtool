@@ -3,7 +3,7 @@
 #Exit immediately if a command exits with a non-zero status.
 #set -e
 
-godev_tool_image="yingjieb/godev-vscode"
+godev_tool_image="yingjieb/godev-vscode:v3.4"
 
 usage(){
     cat <<EOF

@@ -1,15 +1,21 @@
-FROM golang:1.13.12 as builder
+FROM codercom/code-server:latest as builder
+
+ENV GOLANG_VERSION=1.13.12
+ENV GOPATH "/go"
+ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 USER root
 RUN apt -y update && apt -y install gcc
 
-WORKDIR /root
-RUN curl -o code-server.tar.gz -L https://github.com/cdr/code-server/releases/download/2.1698/code-server2.1698-vsc1.41.1-linux-x86_64.tar.gz
-RUN mkdir code-server && tar -C code-server -xvf code-server.tar.gz --strip 1 && cp code-server/code-server /usr/bin && rm -rf code-server*
+WORKDIR /
+RUN curl -o go.tar.gz -L https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
+RUN tar -C /usr/local -xf go.tar.gz && rm -f go.tar.gz
+RUN mkdir -p $GOPATH/src $GOPATH/bin && chmod -R 777 $GOPATH
 RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
 	--user-data-dir /usr/local/share/code-server \
 	--install-extension ms-vscode.Go \
+	--install-extension ms-python.python \
 	--install-extension ms-vscode.cpptools \
 	--install-extension formulahendry.code-runner \
 	--install-extension eamodio.gitlens \
@@ -18,10 +24,8 @@ RUN code-server \
 	--install-extension windmilleng.vscode-go-autotest \
 	--install-extension defaltd.go-coverage-viewer \
 	--install-extension vscode-icons-team.vscode-icons \
-	--install-extension esbenp.prettier-vscode
-
-	#--install-extension ms-python.python \
-	#--install-extension streetsidesoftware.code-spell-checker
+	--install-extension esbenp.prettier-vscode \
+	--install-extension streetsidesoftware.code-spell-checker
 
 ## let any user have the access
 RUN chmod -R a+rwx /usr/local/share/code-server
@@ -57,19 +61,20 @@ RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
 
 
 # Finalize the image
-FROM golang:1.13.12
+FROM codercom/code-server:latest
 
 ENV GO111MODULE "on"
 ENV GOPROXY "https://goproxy.cn,direct"
+ENV GOPATH "/go"
+ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 USER root
 #go pprof needs this
 RUN apt -y update && apt -y install graphviz
 
-COPY --from=builder /usr/bin/code-server /usr/bin/code-server
 COPY --from=builder /usr/local/share/code-server /usr/local/share/code-server
-COPY --from=builder /go/bin /go/bin
-COPY --from=builder /go/src /go/src
+COPY --from=builder /usr/local/go /usr/local/go
+COPY --from=builder /go /go
 
 WORKDIR /go
 
@@ -78,6 +83,5 @@ EXPOSE 8080
 # empty the ENTRYPOINT
 ENTRYPOINT []
 
-#CMD /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password --bind-addr 0.0.0.0:8080
-CMD /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password
+CMD /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password --bind-addr 0.0.0.0:8080
 
