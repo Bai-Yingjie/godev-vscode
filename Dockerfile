@@ -14,7 +14,7 @@ RUN mkdir -p $GOPATH/src $GOPATH/bin && chmod -R 777 $GOPATH
 RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
 	--user-data-dir /usr/local/share/code-server \
-	--install-extension ms-vscode.Go \
+	--install-extension ms-vscode.go \
 	--install-extension ms-python.python \
 	--install-extension ms-vscode.cpptools \
 	--install-extension formulahendry.code-runner \
