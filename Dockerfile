@@ -10,7 +10,6 @@ RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
 	--user-data-dir /usr/local/share/code-server \
 	--install-extension ms-vscode.Go \
-	--install-extension ms-python.python \
 	--install-extension ms-vscode.cpptools \
 	--install-extension formulahendry.code-runner \
 	--install-extension eamodio.gitlens \
@@ -21,6 +20,7 @@ RUN code-server \
 	--install-extension vscode-icons-team.vscode-icons \
 	--install-extension esbenp.prettier-vscode
 
+	#--install-extension ms-python.python \
 	#--install-extension streetsidesoftware.code-spell-checker
 
 ## let any user have the access
