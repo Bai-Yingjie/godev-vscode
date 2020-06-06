@@ -59,6 +59,9 @@ RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
 # Finalize the image
 FROM golang:1.13.12
 
+ENV GO111MODULE "on"
+ENV GOPROXY "https://goproxy.cn,direct"
+
 USER root
 #go pprof needs this
 RUN apt -y update && apt -y install graphviz
