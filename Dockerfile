@@ -4,7 +4,7 @@ USER root
 RUN apt -y update && apt -y install gcc
 
 WORKDIR /root
-RUN curl -o code-server.tar.gz https://github.com/cdr/code-server/releases/download/2.1698/code-server2.1698-vsc1.41.1-linux-x86_64.tar.gz
+RUN curl -o code-server.tar.gz -L https://github.com/cdr/code-server/releases/download/2.1698/code-server2.1698-vsc1.41.1-linux-x86_64.tar.gz
 RUN mkdir code-server && tar -C code-server -xvf code-server.tar.gz --strip 1 && cp code-server/code-server /usr/bin && rm -rf code-server*
 RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
