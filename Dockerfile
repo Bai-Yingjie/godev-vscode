@@ -81,5 +81,5 @@ EXPOSE 8080
 # empty the ENTRYPOINT
 ENTRYPOINT []
 
-CMD ["/usr/bin/code-server", "--user-data-dir", "/usr/local/share/code-server", "--auth", "password", "--bind-addr", "0.0.0.0:8080"]
+CMD /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password --bind-addr 0.0.0.0:8080
 
