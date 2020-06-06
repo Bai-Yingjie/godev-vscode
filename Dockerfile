@@ -19,8 +19,9 @@ RUN code-server \
 	--install-extension windmilleng.vscode-go-autotest \
 	--install-extension defaltd.go-coverage-viewer \
 	--install-extension vscode-icons-team.vscode-icons \
-	--install-extension esbenp.prettier-vscode \
-	--install-extension streetsidesoftware.code-spell-checker
+	--install-extension esbenp.prettier-vscode
+
+	#--install-extension streetsidesoftware.code-spell-checker
 
 ## let any user have the access
 RUN chmod -R a+rwx /usr/local/share/code-server
