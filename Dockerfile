@@ -10,7 +10,8 @@ RUN apt -y update && apt -y install gcc
 WORKDIR /
 RUN curl -o go.tar.gz -L https://dl.google.com/go/go$GOLANG_VERSION.linux-amd64.tar.gz
 RUN tar -C /usr/local -xf go.tar.gz && rm -f go.tar.gz
-RUN mkdir -p $GOPATH/src $GOPATH/bin $GOPATH/pkg && chmod -R 777 $GOPATH
+#RUN mkdir -p $GOPATH/src $GOPATH/bin $GOPATH/pkg && chmod -R 777 $GOPATH
+RUN mkdir -p $GOPATH
 RUN mkdir -p /usr/local/share/code-server
 RUN code-server \
 	--user-data-dir /usr/local/share/code-server \
@@ -63,8 +64,8 @@ RUN go get -d -v github.com/golang/protobuf/protoc-gen-go
 # Finalize the image
 FROM codercom/code-server:latest
 
-ENV GO111MODULE "on"
-ENV GOPROXY "https://goproxy.cn,direct"
+#ENV GO111MODULE "on"
+#ENV GOPROXY "https://goproxy.cn,direct"
 ENV GOPATH "/go"
 ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 

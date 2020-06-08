@@ -3,7 +3,7 @@
 #Exit immediately if a command exits with a non-zero status.
 #set -e
 
-godev_tool_image="yingjieb/godev-vscode:v3.4"
+godevtool_image="yingjieb/godev-vscode:v3.4"
 
 usage(){
     cat <<EOF
@@ -20,6 +20,7 @@ COMMANDS:
     vscode <start|stop|restart> [Options]
     Options:
         --config        path/to/your/settings.json
+        --keybind       path/to/your/keybindings.json
         --port          vscode port
         --password      vscode password
 
@@ -40,7 +41,7 @@ parse_arg(){
     instance_name=${user}_devtool_vscode
 
     vscode_config=$(pwd)/vscodesettings.json
-    key_bind=$(pwd)/keybindings.json
+    vscode_keybind=$(pwd)/vscodekeybindings.json
     vscode_port=$(($(id -u $user) + 60000))
     #can be used to map inside pprof http port to outside
     reserve_port=$(($(id -u $user) + 80 + 60000))
@@ -75,7 +76,7 @@ parse_arg(){
                         shift
                         ;;
                     --keybind)
-                        key_bind=$1
+                        vscode_keybind=$1
                         shift
                         ;;
                     --port)
@@ -111,9 +112,16 @@ start_vscode(){
         echo $instance_name is running
         return
     fi
+    extra_args=""
     echo starting $instance_name for $user
-    echo vscode using config: $vscode_config
-    echo vscode using keybindings: $key_bind
+    if test -n "$vscode_config"; then
+        echo vscode using config: $vscode_config
+        $extra_args="$extra_args $vscode_config:/usr/local/share/code-server/User/settings.json"
+    fi
+    if test -n "$vscode_keybind"; then
+        echo vscode using keybindings: $vscode_keybind
+        $extra_args="$extra_args $vscode_keybind:/usr/local/share/code-server/User/keybindings.json"
+    fi
     echo vscode using port: $vscode_port
     echo vscode using password: $vscode_password
     echo port $reserve_port reserved to map 8000 to outside
@@ -131,9 +139,7 @@ start_vscode(){
             -p $reserve_port:8000               \
             -e PASSWORD=$vscode_password        \
             -e GOPATH=/repo/$user/go:/go        \
-            -v $vscode_config:/usr/local/share/code-server/User/settings.json \
-            -v $key_bind:/usr/local/share/code-server/User/keybindings.json \
-            $godev_tool_image
+            $extra_args $godevtool_image
 }
 
 stop_vscode(){
@@ -161,7 +167,7 @@ exec_shell_command(){
             -v $(pwd):/app                      \
             -e GOPATH="/go:/app"                \
             -w /app                             \
-            $godev_tool_image                   \
+            $godevtool_image                   \
             $shell_command
 }
 
