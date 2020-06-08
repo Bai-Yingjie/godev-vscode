@@ -117,11 +117,11 @@ start_vscode(){
     echo starting $instance_name for $user
     if test -n "$vscode_config"; then
         echo vscode using config: $vscode_config
-        $extra_args="$extra_args $vscode_config:/usr/local/share/code-server/User/settings.json"
+        extra_args="$extra_args -v $vscode_config:/usr/local/share/code-server/User/settings.json"
     fi
     if test -n "$vscode_keybind"; then
         echo vscode using keybindings: $vscode_keybind
-        $extra_args="$extra_args $vscode_keybind:/usr/local/share/code-server/User/keybindings.json"
+        extra_args="$extra_args -v $vscode_keybind:/usr/local/share/code-server/User/keybindings.json"
     fi
     echo vscode using port: $vscode_port
     echo vscode using password: $vscode_password
