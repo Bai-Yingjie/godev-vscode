@@ -4,6 +4,7 @@
 #set -e
 
 godevtool_image="yingjieb/godev-vscode:v3.4"
+goproxy="https://goproxy.cn,direct"
 
 usage(){
     cat <<EOF
@@ -139,6 +140,7 @@ start_vscode(){
             -p $reserve_port:8000               \
             -e PASSWORD=$vscode_password        \
             -e GOPATH=/repo/$user/go:/go        \
+            -e GOPROXY=$goproxy                 \
             $extra_args $godevtool_image
 }
 
