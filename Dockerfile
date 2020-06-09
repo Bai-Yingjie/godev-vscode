@@ -70,10 +70,12 @@ ENV GOPATH "/go"
 ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 USER root
-#go pprof needs this
-RUN apt -y update && apt -y install graphviz
+#go pprof needs graphviz
+RUN apt -y update && apt -y install build-essential graphviz
 
 COPY --from=builder /usr/local/share/code-server /usr/local/share/code-server
+COPY vscodesettings.json /usr/local/share/code-server/User/settings.json
+COPY vscodekeybindings.json /usr/local/share/code-server/User/keybindings.json
 COPY --from=builder /usr/local/go /usr/local/go
 COPY --from=builder /go /go
 #RUN chmod -R 777 $GOPATH
@@ -86,4 +88,3 @@ EXPOSE 8080
 ENTRYPOINT []
 
 CMD /usr/bin/code-server --user-data-dir /usr/local/share/code-server --auth password --bind-addr 0.0.0.0:8080
-
