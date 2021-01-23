@@ -12,9 +12,15 @@
 	"vsicons.dontShowNewVersionMessage": true,
 	"gitlens.currentLine.enabled": false,
 	"terminal.integrated.shell.linux": "/bin/bash",
-	"go.inferGopath": true,
 	"files.exclude": {
 		"**/.vim*": true
 	},
-	"cSpell.allowCompoundWords": true
+	"cSpell.allowCompoundWords": true,
+	"cSpell.diagnosticLevel": "Hint",
+	"go.useLanguageServer": true,
+	"go.inferGopath": true,
+	"go.toolsEnvVars": {
+		"GOBIN": "/go/bin"
+	},
+	"go.formatTool": "goimports"
 }
