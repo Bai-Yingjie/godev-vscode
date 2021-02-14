@@ -4,7 +4,7 @@
 #set -e
 
 devtool_img="yingjieb/godev-vscode"
-devtool_tag="latest"
+devtool_tag="v3.9"
 goproxy="https://goproxy.cn,direct"
 
 usage(){

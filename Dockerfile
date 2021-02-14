@@ -1,4 +1,4 @@
-FROM codercom/code-server:3.8.0 as builder
+FROM codercom/code-server:3.9.0 as builder
 
 ENV GOLANG_VERSION=1.13.15
 ENV GOPATH "/go"
@@ -48,7 +48,7 @@ RUN go get -ldflags "-s -w" -trimpath -v golang.org/x/tools/cmd/goimports
 RUN go get -ldflags "-s -w" -trimpath -v github.com/golang/protobuf/protoc-gen-go
 
 # Finalize the image
-FROM codercom/code-server:3.8.0
+FROM codercom/code-server:3.9.0
 
 ENV GOROOT "/usr/local/go"
 ENV GOPATH "/go"
