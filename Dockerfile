@@ -1,6 +1,6 @@
-FROM codercom/code-server:3.9.0 as builder
+FROM codercom/code-server:3.9.1 as builder
 
-ENV GOLANG_VERSION=1.13.15
+ENV GOLANG_VERSION=1.16.2
 ENV GOPATH "/go"
 ENV GO111MODULE "on"
 ENV PATH "/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -48,7 +48,7 @@ RUN go get -ldflags "-s -w" -trimpath -v golang.org/x/tools/cmd/goimports
 RUN go get -ldflags "-s -w" -trimpath -v github.com/golang/protobuf/protoc-gen-go
 
 # Finalize the image
-FROM codercom/code-server:3.9.0
+FROM codercom/code-server:3.9.1
 
 ENV GOROOT "/usr/local/go"
 ENV GOPATH "/go"
